@@ -16,13 +16,13 @@ to see the full package: https://t.me/QuotLyBot .
 
 Here is an example (with lua) of how to call my sticker generator:
 ```lua
-             local sender = {
-                ['id'] = message.reply.forward_sender_name.length,
-                ['name'] = message.reply.forward_sender_name,
-                -- you could give it a path to a file like /tmp/p.jpg
-                ['avatar'] = 'https://example.com/avatar'
-            }
-                    local payload = {
+         local sender = {
+            ['id'] = message.reply.forward_sender_name.length,
+            ['name'] = message.reply.forward_sender_name,
+            -- you could give it a path to a file like /tmp/p.jpg
+            ['avatar'] = 'https://example.com/avatar'
+        }
+        local payload = {
             ['backgroundColor'] = '#243447',
             ['width'] = 512,
             ['scale'] = 2,
