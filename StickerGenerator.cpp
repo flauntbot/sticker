@@ -483,7 +483,7 @@ QPixmap StickerGenerator::drawText(QString &text,
         auto max_text_width = fm.horizontalAdvance(text.left(45));
         // if the text height is more than 1 (and a half) lines of how tall the font is, give it more horizontal space.
         if (staticText.size().width() < max_text_width && staticText.size().height() > fm.height() * 1.5) {
-            staticText.setTextWidth(max_text_width);
+            staticText.setTextWidth(max_text_width + 1);
         }
     } else {
         // if it's a name and it isn't longer than the max width...
