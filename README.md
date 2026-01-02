@@ -1,5 +1,4 @@
-"Sticker Generator"
-===================
+# "Sticker Generator"
 
 This is a C++ (Qt5/Qt6) partial reimplementation of https://github.com/LyoSU/quote-api -
 I say "partial reimplementation" and not "port" because it does only a subset of what the quote-api
@@ -20,7 +19,7 @@ Here is an example (with lua) of how to call my sticker generator:
             ['id'] = message.reply.forward_sender_name.length,
             ['name'] = message.reply.forward_sender_name,
             -- you could give it a path to a file like /tmp/p.jpg
-            ['avatar'] = 'https://example.com/avatar'
+            ['avatar'] = '/tmp/avatar.jpg'
         }
         local payload = {
             ['backgroundColor'] = '#243447',
@@ -56,3 +55,10 @@ if you really wanna be told how to build it locally....
 
 If you do check this out, I am MOST grateful for security or stability fixes, 
 and don't mind if you add or suggest a feature either. But no sweat either way :-)
+
+## TODO
+- Add support for spoiler entities
+- Add support for blockquote and expandable blockquote entities
+- Add support for network avatars? Maybe?
+- Add support for replies now that we're on a more powerful bot library
+

@@ -569,7 +569,7 @@ QPixmap StickerGenerator::drawAvatar(const ChatUser &user)
 {
     QPixmap avatarImage;
 
-    // This will load from any URI it likes - file, http etc.
+    // This will load from local file paths (or Qt resources) only.
     // Caching is not really my job. Use a local picture or set up a QNetworkManager.
     avatarImage.load(user.avatar);
 
