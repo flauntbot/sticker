@@ -473,7 +473,11 @@ QPixmap StickerGenerator::drawText(QString &text,
         "NotoSansTirhuta NotoSansUgaritic NotoSansVai NotoSansWancho NotoSansWarangCiti "
         "NotoSansYi NotoSansZanabazarSquare").split(" ");
 
-    QFont::insertSubstitutions(fontName, fonts);
+    static bool substitutionsReady = false;
+    if (!substitutionsReady) {
+        QFont::insertSubstitutions(fontName, fonts);
+        substitutionsReady = true;
+    }
 
     QFont font(fontName);
 //    QFont font = QFont("ChocoCooky");
