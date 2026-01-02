@@ -370,7 +370,7 @@ QPixmap StickerGenerator::drawText(QString &text,
 
         if (len > curr) {
             // if we're at the end of an entity, close the html element and start looking for the start of the next one
-            if (entities[curr].offset + entities[curr].length == i) {
+            if (entities[curr].offset + entities[curr].length == i + 1) {
                 processed.append(endEntity(entities[curr].type));
                 ++curr;
             }
