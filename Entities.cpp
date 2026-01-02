@@ -9,40 +9,43 @@ Styles entityType(const QString &what)
     // inconsistency: I don't *think* my desktop tg highlights phone numbers
     if (what == "bold") {
         return bold;
-    } else if (what == "bot_command") {
+    } if (what == "bot_command") {
         return bot_command;
-    } else if (what == "cashtag") {
+    } if (what == "cashtag") {
         return cashtag;
-    } else if (what == "code") {
+    } if (what == "code") {
         return code;
-    } else if (what == "email") {
+    } if (what == "email") {
         return
             email;
-    } else if (what == "hashtag") {
+    } if (what == "hashtag") {
         return
             hashtag;
-    } else if (what == "italic") {
+    } if (what == "italic") {
         return
             italic;
-    } else if (what == "mention") {
+    } if (what == "mention") {
         return
             mention;
-    } else if (what == "phone_number") {
+    } if (what == "text_mention") {
+        return
+            mention;
+    } if (what == "phone_number") {
         return
             phonenumber;
-    } else if (what == "pre") {
+    } if (what == "pre") {
         return
             pre;
-    } else if (what == "strikethrough") {
+    } if (what == "strikethrough") {
         return
             strikethrough;
-    } else if (what == "text_link") {
+    } if (what == "text_link") {
         return
             text_link;
-    } else if (what == "underline") {
+    } if (what == "underline") {
         return
             underline;
-    } else if (what == "url") {
+    } if (what == "url") {
         return
             url;
     }
