@@ -1,7 +1,7 @@
 "Sticker Generator"
 ===================
 
-This is a C++ (Qt5, likely Qt6) partial reimplementation of https://github.com/LyoSU/quote-api -
+This is a C++ (Qt5/Qt6) partial reimplementation of https://github.com/LyoSU/quote-api -
 I say "partial reimplementation" and not "port" because it does only a subset of what the quote-api
 product does. quote-api is used currently for Mattata and therefore also for flauntbot/mafflebot.
 quote-api is around 300MB (RAM and disk) and boasts a MASSIVE feature set. Replies, images, all sorts.
