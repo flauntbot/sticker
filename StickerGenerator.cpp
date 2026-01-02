@@ -346,8 +346,36 @@ QPixmap StickerGenerator::drawText(QString &text,
     // making these literal lets us do things like process it as ONE character (see below for-loop)
     str.replace(R"(\n)", "\n");
 
-    auto curr = 0;
-    const auto len = entities.length();
+    struct EntitySpan {
+        Styles type;
+        int start;
+        int end;
+    };
+
+    QVector<EntitySpan> spans;
+    spans.reserve(entities.size());
+    const auto textLen = str.length();
+    for (const auto &[type, offset, length] : entities) {
+        if (length <= 0) {
+            continue;
+        }
+        auto start = offset;
+        auto end = start + static_cast<int>(length);
+        if (end <= 0 || start >= textLen) {
+            continue;
+        }
+        if (start < 0) {
+            start = 0;
+        }
+        if (end > textLen) {
+            end = textLen;
+        }
+        spans.push_back({type, start, end});
+    }
+
+    auto spanIndex = 0;
+    QVector<EntitySpan> stack;
+    stack.reserve(spans.size());
 
     // This little HTML preamble means we don't need to use textlayout class, and everything is automatic
     QString processed("<div style='line-height: %1%;'>");
@@ -358,22 +386,18 @@ QPixmap StickerGenerator::drawText(QString &text,
     // if your entities overlap (like <b><i></b></i>) it may or may not still work as intended
     for (auto i = 0; i < str.length(); ++i) {
         // this seems like it'd be spectacularly inefficient. I hope qt's doing some magic underneath
-        if (len > curr) {
-            // if character is the start of an entity, open the corresponding html element
-            if (entities[curr].offset == i) {
-                processed.append(startEntity(entities[curr].type));
-            }
+        while (spanIndex < spans.size() && spans[spanIndex].start == i) {
+            processed.append(startEntity(spans[spanIndex].type));
+            stack.push_back(spans[spanIndex]);
+            ++spanIndex;
         }
 
         // now escape the character itself as HTML (because we are going to need the actual html)
         processed.append(QString(str[i]).toHtmlEscaped());
 
-        if (len > curr) {
-            // if we're at the end of an entity, close the html element and start looking for the start of the next one
-            if (entities[curr].offset + entities[curr].length == i + 1) {
-                processed.append(endEntity(entities[curr].type));
-                ++curr;
-            }
+        while (!stack.isEmpty() && stack.last().end == i + 1) {
+            processed.append(endEntity(stack.last().type));
+            stack.removeLast();
         }
 
         /*
@@ -386,13 +410,9 @@ QPixmap StickerGenerator::drawText(QString &text,
 
     }
 
-    while (len > curr) {
-        /*
-         * if any entities close after the last char, then
-         * iterate over every such entity and close it, in order
-         */
-        processed.append(endEntity(entities[curr].type));
-        ++curr;
+    while (!stack.isEmpty()) {
+        processed.append(endEntity(stack.last().type));
+        stack.removeLast();
     }
 
     // unescaping something. needed in a future implementation, but not this one right now
