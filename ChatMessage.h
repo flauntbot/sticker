@@ -17,8 +17,7 @@
 struct ChatMessage
 {
 
-public:
-    ChatMessage(QList<Entity> ents, ChatUser frm, const QString &txt)
+ChatMessage(QList<Entity> ents, ChatUser frm, const QString &txt)
     {
         from = std::move(frm);
         entities = std::move(ents);

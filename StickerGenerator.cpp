@@ -2,13 +2,11 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 #include "StickerGenerator.h"
 #include <QBitmap>
-#include <QFontDatabase>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmap>
 #include <QRgb>
 #include <QStaticText>
-#include <QTextBoundaryFinder>
 #include <QtCore>
 #include <cmath>
 
@@ -24,7 +22,7 @@ StickerGenerator::generate(const QRgb &backgroundColour, ChatMessage &message, i
     QList<Entity> boldEntities;
     boldEntities.append(Entity{bold, 0, message.from.name.length()});
 
-    // check background style color black/light
+    // check background style colour black/light
     auto backIsLight = isLight(backgroundColour);
 
     // default color from tdesktop
@@ -41,8 +39,8 @@ StickerGenerator::generate(const QRgb &backgroundColour, ChatMessage &message, i
     // ]
 
     // should find out: should i have just used QRgbs? Probably
-    // name light style color
-    QList<QColor> nameColorLight = {
+    // name light style colour
+    QList nameColorLight = {
         QColor(0x86, 0x2a, 0x23),
         QColor(0x37, 0x79, 0x1f),
         QColor(0x91, 0x66, 0x04),
@@ -54,7 +52,7 @@ StickerGenerator::generate(const QRgb &backgroundColour, ChatMessage &message, i
     };
 
     // name dark style color
-    QList<QColor> nameColorDark = {
+    QList nameColorDark = {
         QColor(0xfb, 0x61, 0x69),
         QColor(0x85, 0xde, 0x85),
         QColor(0xf3, 0xbc, 0x5c),
@@ -67,11 +65,11 @@ StickerGenerator::generate(const QRgb &backgroundColour, ChatMessage &message, i
 
     // user name  color
     // https://github.com/telegramdesktop/tdesktop/blob/67d08c2d4064e04bec37454b5b32c5c6e606420a/Telegram/SourceFiles/data/data_peer.cpp#L43
-    auto nameMap = QList<int>{0, 7, 4, 1, 6, 3, 5};
+    auto nameMap = QList{0, 7, 4, 1, 6, 3, 5};
 
     auto nameIndex = std::fmod(qAbs(message.from.id), 7);
 
-    auto nameColorIndex = nameMap.at((int) nameIndex);
+    auto nameColorIndex = nameMap.at(static_cast<int>(nameIndex));
     auto nameColorPalette = backIsLight ? nameColorLight : nameColorDark;
     auto nameColor = nameColorPalette[nameColorIndex];
 
@@ -122,7 +120,7 @@ StickerGenerator::generate(const QRgb &backgroundColour, ChatMessage &message, i
     if (message.replyMessage && !message.replyMessage->from.name.isEmpty() && !message.replyMessage->text.isEmpty()) {
         auto replyNameIndex = fmod(qAbs(message.replyMessage->from.id), 7);
         // narrowing!
-        auto replyNameColorIndex = nameMap.at((int) replyNameIndex);
+        auto replyNameColorIndex = nameMap.at(static_cast<int>(replyNameIndex));
         auto colorSet = backIsLight ? nameColorLight : nameColorDark;
         auto replyNameColor = colorSet[replyNameColorIndex];
 
@@ -135,7 +133,7 @@ StickerGenerator::generate(const QRgb &backgroundColour, ChatMessage &message, i
                                  &replyNameColor,
                                  0,
                                  replyNameFontSize,
-                                 (int) (width * 0.9), true);
+                                 static_cast<int>(width * 0.9), true);
         }
 
         auto textColor2 = backIsLight ? QColor(0, 0, 0) : QColor(0xff, 0xff, 0xff);
@@ -167,34 +165,32 @@ bool StickerGenerator::isLight(const QRgb &colour)
     // https://codepen.io/andreaswik/pen/YjJqpK
 
     // HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
-    auto hsp = qSqrt(
+    const auto hsp = qSqrt(
         0.299 * (qRed(colour) * qRed(colour)) +
             0.587 * (qGreen(colour) * qGreen(colour)) +
             0.114 * (qBlue(colour) * qBlue(colour))
     );
 
-    // Using the HSP value, determine whether the color is light or dark
-    return (hsp > 127.5);
+    // Using the HSP value, determine whether the colour is light or dark
+    return hsp > 127.5;
 }
 
-QPixmap StickerGenerator::drawQuote(QRgb backgroundColour,
+QPixmap StickerGenerator::drawQuote(const QRgb backgroundColour,
                                     const QPixmap &avatar,
                                     const QPixmap &replyName,
                                     const QPixmap &replyText,
                                     const QPixmap &name,
                                     const QPixmap &text,
-                                    int scale)
+                                    const int scale)
 {
     // for the rectangle/bubble behind the name and the text body
-    auto blockPosX = 55 * scale;
-    auto blockPosY = 0;
+    const auto blockPosX = 55 * scale;
+    constexpr auto blockPosY = 0;
 
     // general measurement for padding, minimum sizes, and replied-to indents
-    auto indent = 15 * scale;
+    const auto indent = 15 * scale;
 
-    auto avatarPosX = 0;
-    auto avatarPosY = 15;
-    auto avatarSize = 50 * scale;
+    const auto avatarSize = 50 * scale;
 
     // calculate the width for our background box/bubble by finding which picture will need the most horizontal space
     auto width = 0;
@@ -218,7 +214,7 @@ QPixmap StickerGenerator::drawQuote(QRgb backgroundColour,
             height = 2 * indent;
     }
 
-    width += blockPosX + (indent * 2);
+    width += blockPosX + indent * 2;
     height += blockPosY;
 
     int namePosX;
@@ -232,7 +228,7 @@ QPixmap StickerGenerator::drawQuote(QRgb backgroundColour,
         namePosY = indent;
     }
 
-    auto textPosX = blockPosX + indent;
+    const auto textPosX = blockPosX + indent;
     double textPosY = indent;
     if (!name.isNull()) { textPosY = name.height() - 5 * scale; }
 
@@ -244,8 +240,8 @@ QPixmap StickerGenerator::drawQuote(QRgb backgroundColour,
     if (!replyName.isNull()) {
         replyPosX = textPosX + indent;
 
-        auto replyNameHeight = replyName.height() * 1.2;
-        auto replyTextHeight = replyText.height() * 0.5;
+        const auto replyNameHeight = replyName.height() * 1.2;
+        const auto replyTextHeight = replyText.height() * 0.5;
 
         replyNamePosY = namePosY + replyNameHeight;
         replyTextPosY = replyNamePosY + replyTextHeight;
@@ -256,28 +252,30 @@ QPixmap StickerGenerator::drawQuote(QRgb backgroundColour,
 
     height -= 11 * scale;
 
-    QPixmap canvas(width, (int) height);
+    QPixmap canvas(width, static_cast<int>(height));
     canvas.fill(Qt::transparent);
     QPainter painter(&canvas);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
-    auto rectWidth = width - blockPosX;
-    auto rectHeight = height;
-    auto rectPosX = blockPosX;
-    auto rectPosY = blockPosY;
-    auto rectRoundRadius = 25 * scale;
+    const auto rectWidth = width - blockPosX;
+    const auto rectHeight = height;
+    const auto rectPosX = blockPosX;
+    constexpr auto rectPosY = blockPosY;
+    const auto rectRoundRadius = 25 * scale;
 
 //    finally we draw the box/rectabngle/bubble behind the name and the message text
     QPixmap rect;
     if (!name.isNull() || !replyName.isNull()) {
         rect = drawRoundRect(backgroundColour,
                              rectWidth,
-                             (int) rectHeight,
+                             static_cast<int>(rectHeight),
                              rectRoundRadius);
     }
 
     // avatar at top, just left of text box
     if (!avatar.isNull()) {
+        constexpr auto avatarPosY = 15;
+        constexpr auto avatarPosX = 0;
         painter.drawPixmap(avatarPosX, avatarPosY,
                            avatar.scaled(avatarSize, avatarSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
@@ -286,17 +284,17 @@ QPixmap StickerGenerator::drawQuote(QRgb backgroundColour,
     // name is at top of text box
     if (!name.isNull()) { painter.drawPixmap(namePosX, namePosY - scale, name); }
     // text is in text box under name
-    if (!text.isNull()) { painter.drawPixmap(textPosX, (int) textPosY, text); }
+    if (!text.isNull()) { painter.drawPixmap(textPosX, static_cast<int>(textPosY), text); }
 
     // if we have a reply (please no), we can adjust things a bit. Not tested.
     if (!replyName.isNull()) {
-        auto lineColor = isLight(backgroundColour) ? QColor(0, 0, 0) : QColor(0xff, 0xff, 0xff);
+        const auto lineColor = isLight(backgroundColour) ? QColor(0, 0, 0) : QColor(0xff, 0xff, 0xff);
         painter.drawPixmap(textPosX,
-                           (int) replyNamePosY,
-                           drawReplyLine(3 * scale, (int) (replyName.height() + replyText.height() * 0.4), lineColor));
+                           static_cast<int>(replyNamePosY),
+                           drawReplyLine(3 * scale, static_cast<int>(replyName.height() + replyText.height() * 0.4), lineColor));
 
-        painter.drawPixmap(replyPosX, (int) replyNamePosY, replyName);
-        painter.drawPixmap(replyPosX, (int) replyTextPosY, replyText);
+        painter.drawPixmap(replyPosX, static_cast<int>(replyNamePosY), replyName);
+        painter.drawPixmap(replyPosX, static_cast<int>(replyTextPosY), replyText);
     }
 
     // we just return the QPixmap to the calling function. They can decide what to do with it.
@@ -305,18 +303,18 @@ QPixmap StickerGenerator::drawQuote(QRgb backgroundColour,
 
 QPixmap StickerGenerator::drawText(QString &text,
                                    const QList<Entity> &entities,
-                                   int fontSize,
+                                   const int fontSize,
                                    const QColor *fontColour,
                                    int textX,
-                                   int textY,
+                                   const int textY,
                                    int maxWidth,
-                                   bool isName)
+                                   const bool isName)
 {
     if (maxWidth > 10000) { maxWidth = 10000; }
 //    if (maxHeight > 10000) maxHeight = 10000;
 //    auto lineHeight = 4 * (fontSize * 0.3);
 
-    auto lineHeight = 90;
+    constexpr auto lineHeight = 90;
     // future: support more fonts (specified in input json?) and other emoji typefaces
     /*
      * Desktop TG actually uses OpenSans. Quote-API project uses NotoSans (and San Francisco Mono).
@@ -329,7 +327,7 @@ QPixmap StickerGenerator::drawText(QString &text,
      * In the future I'd like to support some styling (ESPECIALLY font faces) in the configuration/input.
      * Specifically, I would like to render tc in something like chococooky.
      */
-    QString fontName("NotoSans");
+    const QString fontName("NotoSans");
 //    QString emojiFontName = QFD::applicationFontFamilies(QFD::addApplicationFont("/tmp/AppleColorEmoji.ttf"))[0];
 
 // telegram convention, really. Could it be configurable? Because for a wee graphic, this might be HUUUUGE
@@ -349,7 +347,7 @@ QPixmap StickerGenerator::drawText(QString &text,
     str.replace(R"(\n)", "\n");
 
     auto curr = 0;
-    auto len = entities.length();
+    const auto len = entities.length();
 
     // This little HTML preamble means we don't need to use textlayout class, and everything is automatic
     QString processed("<div style='line-height: %1%;'>");
@@ -384,7 +382,6 @@ QPixmap StickerGenerator::drawText(QString &text,
          */
         if (str[i] == '\n') {
             processed.append("<br>");
-            continue;
         }
 
     }
@@ -418,7 +415,7 @@ QPixmap StickerGenerator::drawText(QString &text,
      * However, for MOST of the VERY FUNDAMENTAL emoji, the similarity is usually high enough for it to be OK.
      * And sometimes packagers change the fonts, lol, so I THINK the debian version uses noto emoji anyway.
      */
-    auto fonts = QString(
+    const auto fonts = QString(
         "NotoColorEmoji "
         "NotoSansAdlam NotoSansAdlamUnjoined NotoSansAnatolianHieroglyphs NotoSansArabic "
         "NotoSansArmenian NotoSansAvestan NotoSansBalinese NotoSansBamum NotoSansBassaVah "
@@ -466,7 +463,7 @@ QPixmap StickerGenerator::drawText(QString &text,
     font.setStyleHint(QFont::SansSerif);
 
     // for measuring text's needed width/height space using the original input
-    QFontMetrics fm(font);
+    const QFontMetrics fm(font);
 
     // If you haven't seen this, it's a pre-rendered QString and it accepts rich-text (which in Qt is basically HTML)
     // QStaticText can do word wrapping and stuff automatically.
@@ -480,9 +477,8 @@ QPixmap StickerGenerator::drawText(QString &text,
     } else if (!isName) {
         // If it's not the name, then it's message text or avatar text (for now).
         // Desktop seems to trim to 45 or 50 characters roughly of OpenSans, so I emulate that.
-        auto max_text_width = fm.horizontalAdvance(text.left(45));
         // if the text height is more than 1 (and a half) lines of how tall the font is, give it more horizontal space.
-        if (staticText.size().width() < max_text_width && staticText.size().height() > fm.height() * 1.5) {
+        if (const auto max_text_width = fm.horizontalAdvance(text.left(45)); staticText.size().width() < max_text_width && staticText.size().height() > fm.height() * 1.5) {
             staticText.setTextWidth(max_text_width + 1);
         }
     } else {
@@ -496,8 +492,8 @@ QPixmap StickerGenerator::drawText(QString &text,
     }
 
     // Now we are gonna adjust our paint area to fit our text, and then we're gonna actually draw the text
-    auto sz = staticText.size();
-    QPixmap canvas((int) sz.width(), (int) sz.height() + fontSize);
+    const auto sz = staticText.size();
+    QPixmap canvas(static_cast<int>(sz.width()), static_cast<int>(sz.height()) + fontSize);
     canvas.fill(Qt::transparent);
     QPainter painter(&canvas);
     painter.setFont(font);
@@ -509,7 +505,7 @@ QPixmap StickerGenerator::drawText(QString &text,
     return canvas;
 }
 
-QPixmap StickerGenerator::drawRoundRect(const QRgb &colour, int w, int h, int r)
+QPixmap StickerGenerator::drawRoundRect(const QRgb &colour, const int w, const int h, int r)
 {
     // The painter doesn't have a roundrect method, but the path tool does. So let's get set up....
 
@@ -533,7 +529,7 @@ QPixmap StickerGenerator::drawRoundRect(const QRgb &colour, int w, int h, int r)
     return im;
 }
 
-QPixmap StickerGenerator::drawReplyLine(int lineWidth, int height, const QColor &colour)
+QPixmap StickerGenerator::drawReplyLine(const int lineWidth, const int height, const QColor &colour)
 {
     // not tested. here be dragons.
     QPixmap canvas(20, height);
@@ -559,14 +555,14 @@ QPixmap StickerGenerator::drawAvatar(const ChatUser &user)
     }
 
     // just get the image dimensions and draw a rounded rect mask over it with such big corners that it becomes a circle
-    auto w = avatarImage.width();
-    auto h = avatarImage.height();
+    const auto w = avatarImage.width();
+    const auto h = avatarImage.height();
     auto mask = QBitmap(w, h);
     mask.fill(Qt::color0);
     QPainter painter2(&mask);
     painter2.setBrush(Qt::color1);
     // yeah, right
-    auto r = (w < h) ? w / 2 : h / 2;
+    const auto r = w < h ? w / 2 : h / 2;
     painter2.drawRoundedRect(0, 0, w, h, r, r);
     avatarImage.setMask(mask);
 
@@ -582,29 +578,29 @@ QPixmap StickerGenerator::avatarImageLetters(const ChatUser &user)
     // You'll notice that the different mainstream clients don't perfectly match on drawing this. I took some liberties.
     QString letters;
     if (!user.first_name.isEmpty() && !user.last_name.isEmpty()) {
-        QTextBoundaryFinder fnFinder = QTextBoundaryFinder(QTextBoundaryFinder::Grapheme, user.first_name);
-        QTextBoundaryFinder lnFinder = QTextBoundaryFinder(QTextBoundaryFinder::Grapheme, user.last_name);
+        auto fnFinder = QTextBoundaryFinder(QTextBoundaryFinder::Grapheme, user.first_name);
+        auto lnFinder = QTextBoundaryFinder(QTextBoundaryFinder::Grapheme, user.last_name);
         letters = user.first_name.left(fnFinder.toNextBoundary()) + user.last_name.left(lnFinder.toNextBoundary());
     } else {
         QString name = user.first_name.isEmpty() ? user.name : user.first_name;
         name = name.toUpper();
-        QTextBoundaryFinder nFinder = QTextBoundaryFinder(QTextBoundaryFinder::Word, name);
+        auto nFinder = QTextBoundaryFinder(QTextBoundaryFinder::Word, name);
         // probably don't need to find first word boundary. if you think about it
         QString fw = name.left(nFinder.toNextBoundary());
-        QTextBoundaryFinder fnFinder = QTextBoundaryFinder(QTextBoundaryFinder::Grapheme, fw);
+        auto fnFinder = QTextBoundaryFinder(QTextBoundaryFinder::Grapheme, fw);
         QString fn = fw.left(fnFinder.toNextBoundary());
         // I should probably test for space
         nFinder.toEnd();
         auto index = nFinder.toPreviousBoundary();
         QString lw = index ? name.right(name.length() - index) : "";
-        QTextBoundaryFinder lnFinder = QTextBoundaryFinder(QTextBoundaryFinder::Grapheme, lw);
+        auto lnFinder = QTextBoundaryFinder(QTextBoundaryFinder::Grapheme, lw);
         QString ln = lw.left(lnFinder.toNextBoundary());
 
         letters = fn + ln;
     }
 
     // so like before... this could be an array of QRgbs (ints)
-    QList<QColor> avatarColorArray = {
+    QList avatarColorArray = {
         QColor(0xc0, 0x3d, 0x33),
         QColor(0x4f, 0xad, 0x2d),
         QColor(0xd0, 0x93, 0x06),
@@ -615,8 +611,8 @@ QPixmap StickerGenerator::avatarImageLetters(const ChatUser &user)
         QColor(0xce, 0x67, 0x1b)
     };
 
-    auto colorMapId = QList<int>{0, 7, 4, 1, 6, 3, 5};
-    auto nameIndex = (int) std::fmod(qAbs(user.id), 7);
+    auto colorMapId = QList{0, 7, 4, 1, 6, 3, 5};
+    auto nameIndex = static_cast<int>(std::fmod(qAbs(user.id), 7));
 
     auto color = avatarColorArray[colorMapId[nameIndex]];
 
@@ -630,19 +626,19 @@ QPixmap StickerGenerator::avatarImageLetters(const ChatUser &user)
     painter.fillRect(0, 0, canvas.width(), canvas.height(), color);
 
     // ask for our text (1 or 2 letters chosen above) to be drawn on a wee picture
-    auto drawLetters = drawText(const_cast<QString &>(letters), QList<Entity>(), (int) (size / 2.5),
-                                &white, 0, 0, (int) (size / 1.1), false);
+    auto drawLetters = drawText(letters, QList<Entity>(), static_cast<int>(size / 2.5),
+                                &white, 0, 0, static_cast<int>(size / 1.1), false);
 
     // fit the picture onto the background thing.
-    // I could use the gravity/center thing if this isn't sufficiently accurate.
+    // I could use the gravity/centre thing if this isn't sufficiently accurate.
     painter.drawPixmap((canvas.width() - drawLetters.width()) / 2,
-                       (int) ((canvas.height() - drawLetters.height()) * 2),
+                       (canvas.height() - drawLetters.height()) * 2,
                        drawLetters);
 
     return canvas;
 }
 
-QString StickerGenerator::startEntity(Styles type)
+QString StickerGenerator::startEntity(const Styles type)
 {
     // inconsistency: font styles (esp families) and colours
      /*
@@ -651,7 +647,7 @@ QString StickerGenerator::startEntity(Styles type)
      * On android the monospace font is with serifs. On MY tdekstop, the font difference is not exactly striking.
      */
      /*
-      * the colours are copied from default platform themes, Quote-API, etc. But I don't actually like them :-(
+      * the colours are copied from default platform themes, Quote-API, etc. But I don't like them :-(
       * Hyperlinks don't jump out enough, and monospace text maybe doesn't need overloaded with visual cues.
       * I do let the monospace text be a different colour in clients I use, but I think it looks better in these
       * pictures to NOT do that.
@@ -666,7 +662,7 @@ QString StickerGenerator::startEntity(Styles type)
         case mention:
         case text_link:
         case url:
-            // we do not actually care where the URL goes
+            // we do not care where the URL goes
             return "<a href='about:blank' style='/*color: #6ab7ec;*/'>";
         case
             code:
@@ -688,7 +684,7 @@ QString StickerGenerator::startEntity(Styles type)
     }
 }
 
-QString StickerGenerator::endEntity(Styles type)
+QString StickerGenerator::endEntity(const Styles type)
 {
     switch (type) {
         case bold:

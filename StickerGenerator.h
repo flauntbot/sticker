@@ -13,7 +13,7 @@ typedef unsigned int QRgb;
 /*
  * Generates "stickers", which are pictures of basic, single, un-timestamped chat messages and associated user Avatars.
  * Called statically through its sole public method `generate()`.
- * The visual style is roughly modeled after how Telegram's looks, though it doesn't use a real client's algorithms.
+ * The visual style is roughly modelled after how Telegram's looks, though it doesn't use a real client's algorithms.
  * The implementation is very heavily inspired by https://github.com/LyoSU/quote-api and mimics its interfaces. Roughly.
  * Under the hood, we have different tools available to us, so it ends up working a little differently and I had to
  * make a few fun choices and reimplement most of the solutions.
@@ -37,7 +37,7 @@ typedef unsigned int QRgb;
  *      The original needs a Telegram bot API key and selects the user's icon by itself.
  *      Mine assumes that you already have the user's icon, and just fetches that.
  *      I did hope that mine would run faster, but that's not proven.
- *      If used as part of a larger application (eg a long running server like the original) it SHOULD go faster,
+ *      If used as part of a larger application (e.g. a long running server like the original) it SHOULD go faster,
  *      particularly if used behind/with a network cache.
  *
  * Theirs is designed to sit there and run at full speed 24/7 - and it does a great job.
@@ -93,7 +93,7 @@ private:
     /*
      * Uses SuperHardPoo algorithm to tell you whether your input colour is light or dark
      *
-     * @param colour - the color which is currently possibly light and/or dark
+     * @param colour - the colour which is currently possibly light and/or dark
      *
      * @return true if light, false if dark
      */

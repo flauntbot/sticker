@@ -11,7 +11,6 @@
  */
 struct ChatUser
 {
-public:
     // literally the name as it's displayed on screen
     QString name = "";
     // URI to user's avatar - technically should be a QUrl, maybe
