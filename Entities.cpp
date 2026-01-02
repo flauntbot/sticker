@@ -5,7 +5,7 @@
 
 
 Styles entityType(const QString &what)
-{p
+{
     // inconsistency: I don't *think* my desktop tg highlights phone numbers
     if (what == "bold") {
         return bold;
