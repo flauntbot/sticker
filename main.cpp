@@ -4,6 +4,8 @@
 
 #include <QPixmap>
 #include <QGuiApplication>
+#include <QImage>
+#include <QPainter>
 #include <QWindow>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -67,8 +69,35 @@ int main(int argc, char **argv)
                                            w,
                                            j["scale"].toInt()).toImage();
 
-    // tg says somewhere in docs that sticker input MUST be 512px along its longest edge,so
-    pic2 = pic2.scaled(w, w, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    // tg says somewhere in docs that sticker input MUST be 512px along its longest edge, so
+    // scale the content and add a fixed transparent bottom padding.
+    const int target = w;
+    constexpr int bottomPadding = 70;
+    int padding = bottomPadding;
+    if (padding >= target) {
+        padding = 0;
+    }
 
-    return pic2.save(argv[1]) ? 0 : 6;
+    int scaledW = pic2.width();
+    int scaledH = pic2.height();
+    if (pic2.width() > 0 && pic2.height() > 0) {
+        const int contentMaxHeight = target - padding;
+        const double scaleW = static_cast<double>(target) / pic2.width();
+        if (const double scaleH = static_cast<double>(contentMaxHeight) / pic2.height(); scaleW <= scaleH) {
+            scaledW = target;
+            scaledH = static_cast<int>(pic2.height() * scaleW);
+        } else {
+            scaledH = contentMaxHeight;
+            scaledW = static_cast<int>(pic2.width() * scaleH);
+        }
+    }
+
+    const auto scaled = pic2.scaled(scaledW, scaledH, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    QImage out(scaledW, scaledH + padding, QImage::Format_ARGB32_Premultiplied);
+    out.fill(Qt::transparent);
+    QPainter painter(&out);
+    painter.drawImage(0, 0, scaled);
+    painter.end();
+
+    return out.save(argv[1]) ? 0 : 6;
 }

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 #include "StickerGenerator.h"
 #include <QBitmap>
+#include <QLinearGradient>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmap>
@@ -547,7 +548,13 @@ QPixmap StickerGenerator::drawRoundRect(const QRgb &colour, const int w, const i
     path.addRoundedRect(0, 0, w, h, r, r);
 
     // and boingo, draw the path, job done
-    painter.fillPath(path, QColor(colour));
+    const QColor base(colour);
+    const QColor light = base.lighter(150);
+    const QColor dark = base.darker(0);
+    QLinearGradient grad(0, h, w, 0);
+    grad.setColorAt(0.0, light);
+    grad.setColorAt(1.0, dark);
+    painter.fillPath(path, grad);
     painter.drawPath(path);
 
     return im;
