@@ -74,7 +74,7 @@ StickerGenerator::generate(const QRgb &backgroundColour, ChatMessage &message, i
     auto nameColorPalette = backIsLight ? nameColorLight : nameColorDark;
     auto nameColor = nameColorPalette[nameColorIndex];
 
-    auto nameSize = 22 * scale;
+    auto nameSize = 24 * scale;
 
     // where we write the peer's/user's name (if there is one)
     QPixmap nameCanvas;
@@ -306,7 +306,7 @@ QPixmap StickerGenerator::drawText(QString &text,
                                    const QList<Entity> &entities,
                                    const int fontSize,
                                    const QColor *fontColour,
-                                   int textX,
+                                   const int textX,
                                    const int textY,
                                    int maxWidth,
                                    const bool isName)
@@ -694,7 +694,7 @@ QString StickerGenerator::startEntity(const Styles type)
         case text_link:
         case url:
             // we do not care where the URL goes
-            return "<a href='about:blank' style='/*color: #6ab7ec;*/'>";
+            return "<a href='about:blank' style='color: #6ab7ec;'>";
         case
             code:
                 // do i need to include a longer list of font families here, or can we treat Noto Mono as a hard req?
